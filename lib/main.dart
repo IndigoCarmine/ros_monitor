@@ -1,6 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:ros_monitor/control.dart';
+import 'package:ros_monitor/settings.dart';
+import 'package:ros_monitor/status.dart';
 import 'package:roslibdart/roslibdart.dart';
 
 void main() {
@@ -33,32 +36,42 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   late Ros ros;
   late Topic topic;
+  int _selectedIndex = 0;
+  static final _screens = <Widget>[StatusPage(), ControlPage(), SettingsPage()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const <Widget>[
-              Card(
-                child: Text('status'),
-              ),
-              Card(
-                child: Text('status'),
-              )
-            ],
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.keyboard_control),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Status',
+            ),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.settings), label: 'Settings'),
+          ],
+          currentIndex: _selectedIndex,
+          onTap: (int index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          }),
+      floatingActionButton: FloatingActionButton(
+          onPressed: websocketConnect,
+          tooltip: 'connect',
+          child: const Icon(
+            Icons.cast_connected_rounded,
+          ) // This trailing comma makes auto-formatting nicer for build methods.
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-            onPressed: websocketConnect,
-            tooltip: 'connect',
-            child: const Icon(
-              Icons.cast_connected_rounded,
-            ) // This trailing comma makes auto-formatting nicer for build methods.
-            ));
+    );
   }
 
   Future<void> websocketConnect() async {
