@@ -34,10 +34,22 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  //default values
   late Ros ros;
   late Topic topic;
   int _selectedIndex = 0;
-  static final _screens = <Widget>[StatusPage(), ControlPage(), SettingsPage()];
+  late List<Widget> _screens;
+  @override
+  void initState() {
+    super.initState();
+    ros = Ros(url: 'ws://192.168.3.6:8080');
+    _screens = <Widget>[
+      StatusPage(),
+      ControlPage(ros: ros),
+      const SettingsPage()
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,28 +87,20 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> websocketConnect() async {
-    ros = Ros(url: 'ws://127.0.0.1:9090');
-    topic = Topic(
-        ros: ros,
-        name: '/topic',
-        type: "std_msgs/String",
-        reconnectOnClose: true,
-        queueLength: 10,
-        queueSize: 10);
     ros.connect();
-    await topic.subscribe(subscribeHandler);
-
-    // show snackbar
-    SnackBar a = const SnackBar(content: Text('connected'));
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(a);
-
-    setState(() {});
-  }
-
-  Future<void> subscribeHandler(Map<String, dynamic> args) async {
-    setState(() {
-      String msgReceived = json.decoder.convert(args['msg']);
-    });
+    while (ros.status != Status.connecting) {
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    if (ros.status == Status.connected) {
+      // show snackbar
+      SnackBar a = const SnackBar(content: Text('connected'));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(a);
+    } else {
+      // show snackbar
+      SnackBar a = const SnackBar(content: Text('can not connect'));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(a);
+    }
   }
 }

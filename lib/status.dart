@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class StatusPage extends StatefulWidget {
-  StatusPage({Key? key}) : super(key: key);
+  const StatusPage({Key? key}) : super(key: key);
 
   @override
   State<StatusPage> createState() => _StatusPageState();
