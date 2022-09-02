@@ -5,6 +5,7 @@ import 'package:ros_monitor/control.dart';
 import 'package:ros_monitor/settings.dart';
 import 'package:ros_monitor/status.dart';
 import 'package:roslibdart/roslibdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,6 +40,7 @@ class _MainPageState extends State<MainPage> {
   late Topic topic;
   int _selectedIndex = 0;
   late List<Widget> _screens;
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   @override
   void initState() {
     super.initState();
@@ -87,6 +89,8 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<void> websocketConnect() async {
+    ros.url = await _prefs.then((SharedPreferences prefs) =>
+        prefs.getString("iPAddress") ?? 'ws://127.0.0.1:9090');
     ros.connect();
     while (ros.status != Status.connecting) {
       await Future.delayed(const Duration(seconds: 1));

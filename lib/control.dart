@@ -28,8 +28,8 @@ class _ControlPageState extends State<ControlPage> {
   }
 
   bool _isChanged = false;
-  void rosPublish(Timer timer) {
-    if (!_isChanged) return;
+  void rosPublish(Timer timer) async {
+    if (!_isChanged || ros.status != Status.connected) return;
     Map<String, dynamic> msg = {
       'header': {
         'seq': 0,

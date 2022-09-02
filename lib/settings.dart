@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -10,7 +11,18 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   bool enableCustom = true;
-  String iPAddress = 'ws://127.0.0.1:9090';
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  String? iPAddress;
+  @override
+  void initState() {
+    super.initState();
+    _prefs.then((SharedPreferences prefs) {
+      iPAddress = prefs.getString("iPAddress") ?? 'ws://127.0.0.1:9090';
+      setState((() {}));
+      return null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +35,17 @@ class _SettingsPageState extends State<SettingsPage> {
               SettingsTile.navigation(
                 leading: const Icon(Icons.connected_tv),
                 title: const Text('Server IP Address'),
-                value: Text(iPAddress),
+                value: Text(iPAddress ?? "error"),
                 onPressed: (BuildContext context) async {
-                  String newIPAddress = await inputDialog(context);
-                  setState(() {
-                    iPAddress = newIPAddress;
-                  });
+                  String? newIPAddress = await inputDialog(context);
+                  if (newIPAddress != null && newIPAddress != "") {
+                    setState(() {
+                      iPAddress = newIPAddress;
+                    });
+                    _prefs.then((SharedPreferences prefs) {
+                      prefs.setString("iPAdress", newIPAddress);
+                    });
+                  }
                 },
               ),
               SettingsTile.switchTile(
@@ -48,7 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Future<String> inputDialog(BuildContext context) async {
+  Future<String?> inputDialog(BuildContext context) async {
     TextEditingController editingController = TextEditingController();
     await showDialog(
         context: context,
@@ -67,7 +84,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child:
                     const Text('キャンセル', style: TextStyle(color: Colors.black)),
                 onPressed: () {
-                  editingController.text = '';
+                  editingController.text = "";
                   Navigator.pop(context);
                 },
               ),
