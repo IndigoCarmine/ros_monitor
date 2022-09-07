@@ -43,7 +43,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       iPAddress = newIPAddress;
                     });
                     _prefs.then((SharedPreferences prefs) {
-                      prefs.setString("iPAdress", newIPAddress);
+                      prefs.setString("iPAddress", newIPAddress);
                     });
                   }
                 },
