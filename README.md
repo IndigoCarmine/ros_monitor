@@ -1,6 +1,7 @@
 # ros_monitor
 
-A new Flutter project.
+This is a sample to use communication with ROSBridge. it can be used as a controller to send to JOY topic.
+
 
 ## Getting Started
 
